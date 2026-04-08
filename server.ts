@@ -21,7 +21,7 @@ let runtimeConfig = {
   JWT_SECRET: process.env.JWT_SECRET || "viking_secret",
   API_KEY: process.env.API_KEY || "viking_api_key",
   SITE_NAME: process.env.SITE_NAME || "VikingDesk",
-  EMAIL_SUPPORT_ADDR: process.env.EMAIL_SUPPORT_ADDR || "help@fkviking.ru",
+  EMAIL_SUPPORT_ADDR: process.env.EMAIL_SUPPORT_ADDR || "mail@domain.com",
   EMAIL_IMAP: {
     host: process.env.EMAIL_IMAP_HOST || "",
     port: Number(process.env.EMAIL_IMAP_PORT) || 993,
@@ -60,7 +60,7 @@ async function refreshRuntimeConfig() {
   runtimeConfig.JWT_SECRET = settingsMap.jwt_secret || process.env.JWT_SECRET || "viking_secret";
   runtimeConfig.API_KEY = settingsMap.api_key || process.env.API_KEY || "viking_api_key";
   runtimeConfig.SITE_NAME = settingsMap.site_name || process.env.SITE_NAME || "VikingDesk";
-  runtimeConfig.EMAIL_SUPPORT_ADDR = settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "help@fkviking.ru";
+  runtimeConfig.EMAIL_SUPPORT_ADDR = settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "mail@domain.com";
   
   runtimeConfig.EMAIL_IMAP = {
     host: settingsMap.email_imap_host || process.env.EMAIL_IMAP_HOST || "",
@@ -345,7 +345,7 @@ async function startServer() {
         site_name: settingsMap.site_name || process.env.SITE_NAME || "VikingDesk",
         jwt_secret: settingsMap.jwt_secret || process.env.JWT_SECRET || "viking_secret",
         api_key: settingsMap.api_key || process.env.API_KEY || "viking_api_key",
-        email_support_addr: settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "help@fkviking.ru",
+        email_support_addr: settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "mail@domain.com",
         email_imap_host: settingsMap.email_imap_host || process.env.EMAIL_IMAP_HOST || "",
         email_imap_port: settingsMap.email_imap_port || process.env.EMAIL_IMAP_PORT || "993",
         email_imap_user: settingsMap.email_imap_user || process.env.EMAIL_IMAP_USER || "",
