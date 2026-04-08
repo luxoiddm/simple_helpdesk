@@ -18,10 +18,17 @@ import fs from "fs";
 dotenv.config();
 
 let runtimeConfig = {
+<<<<<<< HEAD
   JWT_SECRET: process.env.JWT_SECRET || "default_secret",
   API_KEY: process.env.API_KEY || "default_api_key",
   SITE_NAME: process.env.SITE_NAME || "SupportDesk",
   EMAIL_SUPPORT_ADDR: process.env.EMAIL_SUPPORT_ADDR || "support@example.com",
+=======
+  JWT_SECRET: process.env.JWT_SECRET || "viking_secret",
+  API_KEY: process.env.API_KEY || "viking_api_key",
+  SITE_NAME: process.env.SITE_NAME || "VikingDesk",
+  EMAIL_SUPPORT_ADDR: process.env.EMAIL_SUPPORT_ADDR || "mail@domain.com",
+>>>>>>> 50dee68ee6894f6b156acb0c4b295fbf0bbbe45d
   EMAIL_IMAP: {
     host: process.env.EMAIL_IMAP_HOST || "",
     port: Number(process.env.EMAIL_IMAP_PORT) || 993,
@@ -57,10 +64,17 @@ async function refreshRuntimeConfig() {
   const settings = await db.all("SELECT * FROM settings");
   const settingsMap = settings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {});
 
+<<<<<<< HEAD
   runtimeConfig.JWT_SECRET = settingsMap.jwt_secret || process.env.JWT_SECRET || "default_secret";
   runtimeConfig.API_KEY = settingsMap.api_key || process.env.API_KEY || "default_api_key";
   runtimeConfig.SITE_NAME = settingsMap.site_name || process.env.SITE_NAME || "SupportDesk";
   runtimeConfig.EMAIL_SUPPORT_ADDR = settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "support@example.com";
+=======
+  runtimeConfig.JWT_SECRET = settingsMap.jwt_secret || process.env.JWT_SECRET || "viking_secret";
+  runtimeConfig.API_KEY = settingsMap.api_key || process.env.API_KEY || "viking_api_key";
+  runtimeConfig.SITE_NAME = settingsMap.site_name || process.env.SITE_NAME || "VikingDesk";
+  runtimeConfig.EMAIL_SUPPORT_ADDR = settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "mail@domain.com";
+>>>>>>> 50dee68ee6894f6b156acb0c4b295fbf0bbbe45d
   
   runtimeConfig.EMAIL_IMAP = {
     host: settingsMap.email_imap_host || process.env.EMAIL_IMAP_HOST || "",
@@ -342,10 +356,17 @@ async function startServer() {
       
       // Return merged settings (DB overrides ENV)
       res.json({
+<<<<<<< HEAD
         site_name: settingsMap.site_name || process.env.SITE_NAME || "SupportDesk",
         jwt_secret: settingsMap.jwt_secret || process.env.JWT_SECRET || "default_secret",
         api_key: settingsMap.api_key || process.env.API_KEY || "default_api_key",
         email_support_addr: settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "support@example.com",
+=======
+        site_name: settingsMap.site_name || process.env.SITE_NAME || "VikingDesk",
+        jwt_secret: settingsMap.jwt_secret || process.env.JWT_SECRET || "viking_secret",
+        api_key: settingsMap.api_key || process.env.API_KEY || "viking_api_key",
+        email_support_addr: settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "mail@domain.com",
+>>>>>>> 50dee68ee6894f6b156acb0c4b295fbf0bbbe45d
         email_imap_host: settingsMap.email_imap_host || process.env.EMAIL_IMAP_HOST || "",
         email_imap_port: settingsMap.email_imap_port || process.env.EMAIL_IMAP_PORT || "993",
         email_imap_user: settingsMap.email_imap_user || process.env.EMAIL_IMAP_USER || "",

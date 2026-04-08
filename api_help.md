@@ -2,6 +2,58 @@
 
 SupportDesk предоставляет два типа API: **Внешнее API** (для интеграции с другими системами через API-ключ) и **Внутреннее API** (используется веб-интерфейсом через JWT-токен).
 
+## Примеры использования
+### Пример через cURL (Linux/macOS/Windows Terminal):
+```
+curl -X POST https://desk.fkviking.com/api/external/tickets \
+     -H "x-api-key: viking_api_key_for_external_services" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "subject": "Тестовая заявка через API",
+       "description": "Это описание заявки, созданной удаленно",
+       "clientUsername": "admin"
+     }'
+```
+### Пример на JavaScript (fetch):
+```
+const createTicket = async () => {
+  const response = await fetch('https://desk.fkviking.com/api/external/tickets', {
+    method: 'POST',
+    headers: {
+      'x-api-key': 'viking_api_key_for_external_services',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      subject: 'Заголовок заявки',
+      description: 'Текст обращения',
+      clientUsername: 'admin' // Логин пользователя в системе
+    })
+  });
+
+  const data = await response.json();
+  console.log(data);
+};
+
+createTicket();
+```
+### Пример на Python:
+```
+import requests
+
+url = "https://desk.fkviking.com/api/external/tickets"
+headers = {
+    "x-api-key": "viking_api_key_for_external_services",
+    "Content-Type": "application/json"
+}
+data = {
+    "subject": "Заявка из Python",
+    "description": "Описание проблемы",
+    "clientUsername": "admin"
+}
+
+response = requests.post(url, json=data, headers=headers)
+print(response.json())
+```
 ---
 
 ## 1. Внешнее API (X-API-KEY)
