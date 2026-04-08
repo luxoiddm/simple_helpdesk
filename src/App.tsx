@@ -25,9 +25,9 @@ interface AuthUser {
 
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('viking_token'));
-  const [isAuthLoading, setIsAuthLoading] = useState(!!localStorage.getItem('viking_token'));
-  const [siteName, setSiteName] = useState('VikingDesk');
+  const [token, setToken] = useState<string | null>(localStorage.getItem('auth_token'));
+  const [isAuthLoading, setIsAuthLoading] = useState(!!localStorage.getItem('auth_token'));
+  const [siteName, setSiteName] = useState('SupportDesk');
   const [view, setView] = useState<'dashboard' | 'tickets' | 'admin' | 'analytics'>('dashboard');
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
@@ -92,7 +92,7 @@ export default function App() {
       if (res.ok) {
         setToken(data.token);
         setUser(data.user);
-        localStorage.setItem('viking_token', data.token);
+        localStorage.setItem('auth_token', data.token);
         setLoginError('');
       } else {
         setLoginError(data.error);
@@ -105,7 +105,7 @@ export default function App() {
   const handleLogout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('viking_token');
+    localStorage.removeItem('auth_token');
     if (socket) socket.close();
   };
 

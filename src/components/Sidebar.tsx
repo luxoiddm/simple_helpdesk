@@ -28,8 +28,8 @@ export function Sidebar({ user, view, setView, handleLogout, siteName }: any) {
   return (
     <aside className="w-72 bg-[#151619] border-r border-white/5 flex flex-col shrink-0">
       <div className="p-8 border-b border-white/5 flex items-center gap-4">
-        <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-black font-black text-xl italic">{siteName?.[0] || 'V'}</div>
-        <h1 className="font-black text-2xl tracking-tighter italic">{siteName || 'VikingDesk'}</h1>
+        <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-black font-black text-xl italic">{siteName?.[0] || 'S'}</div>
+        <h1 className="font-black text-2xl tracking-tighter italic">{siteName || 'SupportDesk'}</h1>
       </div>
       
       <nav className="flex-1 p-6 space-y-2">

@@ -1,4 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import ReactQuill from 'react-quill-new';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
+import rehypeRaw from 'rehype-raw';
 import { 
   ArrowLeft, 
   Trash2, 
@@ -52,6 +57,17 @@ export function TicketDetail({ ticket, messages, onClose, onSendMessage, onUpdat
   const [isUploading, setIsUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, ticket.id]);
 
   const handleDeleteTicket = async () => {
     try {
@@ -73,7 +89,8 @@ export function TicketDetail({ ticket, messages, onClose, onSendMessage, onUpdat
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputText.trim()) return;
+    const cleanText = inputText.replace(/<(.|\n)*?>/g, '').trim();
+    if (!cleanText && !inputText.includes('<img')) return;
     onSendMessage(inputText, isInternal);
     setInputText('');
   };
@@ -273,19 +290,24 @@ export function TicketDetail({ ticket, messages, onClose, onSendMessage, onUpdat
         )}
       </header>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-[#0D0E11]">
-        <div className="bg-[#151619] p-6 rounded-2xl border border-white/5 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center font-bold text-lg">
-              {ticket.client_name?.[0] || '?'}
+      <div 
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto p-6 space-y-8 bg-[#0D0E11] scroll-smooth"
+      >
+        {(!ticket.description || !ticket.description.startsWith('Email Ticket:')) && (
+          <div className="bg-[#151619] p-6 rounded-2xl border border-white/5 shadow-sm">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center font-bold text-lg">
+                {ticket.client_name?.[0] || '?'}
+              </div>
+              <div>
+                <p className="text-sm font-bold">{ticket.client_name}</p>
+                <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">{formatDateTime(new Date(ticket.created_at).getTime())}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-bold">{ticket.client_name}</p>
-              <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">{formatDateTime(new Date(ticket.created_at).getTime())}</p>
-            </div>
+            <p className="text-sm text-gray-400 leading-relaxed font-medium">{ticket.description}</p>
           </div>
-          <p className="text-sm text-gray-400 leading-relaxed font-medium">{ticket.description}</p>
-        </div>
+        )}
 
         <div className="space-y-6">
           {messages.map((msg: any) => {
@@ -300,8 +322,11 @@ export function TicketDetail({ ticket, messages, onClose, onSendMessage, onUpdat
               let bodyLines: string[] = [];
               let inBody = false;
 
+              const headerPrefixes = ['**КЛИЕНТ:**', '**ДАТА:**', '**ОТ:**', '**ТЕМА:**'];
+
               for (const line of lines) {
-                if (!inBody && (line.startsWith('**ОТ:**') || line.startsWith('**ТЕМА:**'))) {
+                const isHeader = headerPrefixes.some(p => line.startsWith(p));
+                if (!inBody && isHeader) {
                   headers.push(line);
                 } else if (!inBody && line.trim() === '' && headers.length > 0) {
                   inBody = true;
@@ -310,7 +335,27 @@ export function TicketDetail({ ticket, messages, onClose, onSendMessage, onUpdat
                 }
               }
 
-              if (headers.length === 0) return <p className="whitespace-pre-wrap leading-relaxed">{text}</p>;
+              const content = headers.length > 0 ? bodyLines.join('\n').trim() : text;
+
+              const markdownContent = (
+                <div className={cn(
+                  "markdown-body prose prose-invert prose-sm max-w-none",
+                  isOwn 
+                    ? "prose-p:text-black prose-strong:text-black prose-li:text-black prose-code:bg-black/10 prose-code:text-black prose-pre:bg-[#0D0E11] prose-pre:text-gray-200 shadow-none" 
+                    : "prose-p:text-gray-300 prose-li:text-gray-300"
+                )}>
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm, remarkBreaks]} 
+                    rehypePlugins={[rehypeRaw]}
+                  >
+                    {content}
+                  </ReactMarkdown>
+                </div>
+              );
+
+              if (headers.length === 0) {
+                return markdownContent;
+              }
 
               return (
                 <div className="space-y-4">
@@ -319,13 +364,13 @@ export function TicketDetail({ ticket, messages, onClose, onSendMessage, onUpdat
                       const [label, ...rest] = h.split(':');
                       return (
                         <div key={i} className="flex gap-2 text-[10px] items-baseline">
-                          <span className="text-gray-500 font-bold uppercase tracking-widest min-w-[50px]">{label.replace(/\*/g, '')}:</span>
+                          <span className="text-gray-500 font-bold uppercase tracking-widest min-w-[60px]">{label.replace(/\*/g, '')}:</span>
                           <span className="text-gray-300 font-medium break-all">{rest.join(':').trim()}</span>
                         </div>
                       );
                     })}
                   </div>
-                  <p className="whitespace-pre-wrap leading-relaxed px-1">{bodyLines.join('\n').trim()}</p>
+                  {markdownContent}
                 </div>
               );
             };
@@ -337,8 +382,10 @@ export function TicketDetail({ ticket, messages, onClose, onSendMessage, onUpdat
                   {isOwn && <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Вы</span>}
                 </div>
                 <div className={cn(
-                  "max-w-[90%] p-5 rounded-3xl text-sm relative shadow-lg",
-                  isOwn ? "bg-white text-black font-medium" : "bg-[#1C1D21] border border-white/5 text-gray-300",
+                  "max-w-[90%] p-5 rounded-3xl text-sm relative shadow-lg break-words",
+                  isOwn 
+                    ? "bg-white text-black font-medium" 
+                    : "bg-[#1C1D21] border border-white/5 text-gray-300",
                   msg.is_internal && "bg-yellow-500/10 border-yellow-500/20 text-yellow-500 border"
                 )}>
                   {!!msg.is_internal && (
@@ -397,12 +444,26 @@ export function TicketDetail({ ticket, messages, onClose, onSendMessage, onUpdat
             >
               <Paperclip size={20} />
             </button>
-            <input 
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder={isInternal ? "Внутренний комментарий..." : "Ваше сообщение..."}
-              className="flex-1 bg-[#1C1D21] border border-white/5 rounded-xl px-5 py-3 text-sm focus:ring-1 focus:ring-white/20 transition-all"
-            />
+            <div className="flex-1 min-w-0">
+              <ReactQuill 
+                theme="snow"
+                value={inputText}
+                onChange={setInputText}
+                placeholder={isInternal ? "Внутренний комментарий..." : "Ваше сообщение..."}
+                className="bg-[#1C1D21] border border-white/5 rounded-xl overflow-hidden"
+                modules={{
+                  toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['blockquote', 'code-block', 'code'],
+                    ['link'],
+                    ['clean']
+                  ]
+                }}
+              />
+            </div>
             <button type="submit" className="p-3 bg-white text-black rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all">
               <Send size={20} />
             </button>

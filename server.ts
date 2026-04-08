@@ -18,10 +18,10 @@ import fs from "fs";
 dotenv.config();
 
 let runtimeConfig = {
-  JWT_SECRET: process.env.JWT_SECRET || "viking_secret",
-  API_KEY: process.env.API_KEY || "viking_api_key",
-  SITE_NAME: process.env.SITE_NAME || "VikingDesk",
-  EMAIL_SUPPORT_ADDR: process.env.EMAIL_SUPPORT_ADDR || "help@fkviking.ru",
+  JWT_SECRET: process.env.JWT_SECRET || "default_secret",
+  API_KEY: process.env.API_KEY || "default_api_key",
+  SITE_NAME: process.env.SITE_NAME || "SupportDesk",
+  EMAIL_SUPPORT_ADDR: process.env.EMAIL_SUPPORT_ADDR || "support@example.com",
   EMAIL_IMAP: {
     host: process.env.EMAIL_IMAP_HOST || "",
     port: Number(process.env.EMAIL_IMAP_PORT) || 993,
@@ -57,10 +57,10 @@ async function refreshRuntimeConfig() {
   const settings = await db.all("SELECT * FROM settings");
   const settingsMap = settings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {});
 
-  runtimeConfig.JWT_SECRET = settingsMap.jwt_secret || process.env.JWT_SECRET || "viking_secret";
-  runtimeConfig.API_KEY = settingsMap.api_key || process.env.API_KEY || "viking_api_key";
-  runtimeConfig.SITE_NAME = settingsMap.site_name || process.env.SITE_NAME || "VikingDesk";
-  runtimeConfig.EMAIL_SUPPORT_ADDR = settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "help@fkviking.ru";
+  runtimeConfig.JWT_SECRET = settingsMap.jwt_secret || process.env.JWT_SECRET || "default_secret";
+  runtimeConfig.API_KEY = settingsMap.api_key || process.env.API_KEY || "default_api_key";
+  runtimeConfig.SITE_NAME = settingsMap.site_name || process.env.SITE_NAME || "SupportDesk";
+  runtimeConfig.EMAIL_SUPPORT_ADDR = settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "support@example.com";
   
   runtimeConfig.EMAIL_IMAP = {
     host: settingsMap.email_imap_host || process.env.EMAIL_IMAP_HOST || "",
@@ -163,7 +163,7 @@ let io: Server;
 // --- Database Initialization ---
 async function initDb() {
   db = await open({
-    filename: './vikingdesk.db',
+    filename: process.env.DB_PATH || './database.db',
     driver: sqlite3.Database
   });
 
@@ -342,10 +342,10 @@ async function startServer() {
       
       // Return merged settings (DB overrides ENV)
       res.json({
-        site_name: settingsMap.site_name || process.env.SITE_NAME || "VikingDesk",
-        jwt_secret: settingsMap.jwt_secret || process.env.JWT_SECRET || "viking_secret",
-        api_key: settingsMap.api_key || process.env.API_KEY || "viking_api_key",
-        email_support_addr: settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "help@fkviking.ru",
+        site_name: settingsMap.site_name || process.env.SITE_NAME || "SupportDesk",
+        jwt_secret: settingsMap.jwt_secret || process.env.JWT_SECRET || "default_secret",
+        api_key: settingsMap.api_key || process.env.API_KEY || "default_api_key",
+        email_support_addr: settingsMap.email_support_addr || process.env.EMAIL_SUPPORT_ADDR || "support@example.com",
         email_imap_host: settingsMap.email_imap_host || process.env.EMAIL_IMAP_HOST || "",
         email_imap_port: settingsMap.email_imap_port || process.env.EMAIL_IMAP_PORT || "993",
         email_imap_user: settingsMap.email_imap_user || process.env.EMAIL_IMAP_USER || "",
@@ -354,7 +354,7 @@ async function startServer() {
         email_smtp_port: settingsMap.email_smtp_port || process.env.EMAIL_SMTP_PORT || "465",
         email_smtp_user: settingsMap.email_smtp_user || process.env.EMAIL_SMTP_USER || "",
         email_smtp_pass: settingsMap.email_smtp_pass ? "********" : (process.env.EMAIL_SMTP_PASS ? "********" : ""),
-        db_name: settingsMap.db_name || "vikingdesk.db"
+        db_path: settingsMap.db_path || process.env.DB_PATH || "./database.db"
       });
     });
 
@@ -660,7 +660,7 @@ async function startServer() {
       app.get("*", (req, res) => res.sendFile(path.join(distPath, "index.html")));
     }
 
-    httpServer.listen(PORT, "0.0.0.0", () => console.log(`VikingDesk running on port ${PORT}`));
+    httpServer.listen(PORT, "0.0.0.0", () => console.log(`SupportDesk running on port ${PORT}`));
 }
 
 async function sendEmailReply(to: string, ticketId: string, text: string, originalSubject: string) {
@@ -773,9 +773,18 @@ async function checkEmails() {
           const slaDeadline = new Date(Date.now() + 3600000 * 8).toISOString();
           await db.run(
             "INSERT INTO tickets (id, client_id, subject, description, sla_deadline) VALUES (?, ?, ?, ?, ?)",
-            [ticketId, user.id, cleanSubject, body.substring(0, 1000), slaDeadline]
+            [ticketId, user.id, cleanSubject, `Email Ticket: ${cleanSubject}`, slaDeadline]
           );
           ticket = { id: ticketId };
+          
+          // Emit new ticket to all admins/support
+          const newTicketFull = await db.get(`
+            SELECT t.*, u.full_name as client_name 
+            FROM tickets t 
+            JOIN users u ON t.client_id = u.id 
+            WHERE t.id = ?
+          `, [ticketId]);
+          io.emit("ticket:created", newTicketFull);
         } else {
           console.log(`[IMAP] Adding message to existing ticket ${ticketId}...`);
           // Re-open ticket if it was resolved
@@ -797,7 +806,15 @@ async function checkEmails() {
           }
         }
 
-        const formattedText = `**ОТ:** ${fromEmail}\n**ТЕМА:** ${subject}\n\n${body}`;
+        const clientName = parsed.from?.value[0]?.name || fromEmail;
+        const formattedDate = new Date().toLocaleString('ru-RU', { 
+          day: '2-digit', 
+          month: 'short', 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+        
+        const formattedText = `**КЛИЕНТ:** ${clientName}\n**ДАТА:** ${formattedDate}\n**ОТ:** ${fromEmail}\n**ТЕМА:** ${subject}\n\n${body}`;
         const result = await db.run(
           "INSERT INTO messages (ticket_id, sender_id, text, media_url, is_internal, external_id) VALUES (?, ?, ?, ?, ?, ?)",
           [ticketId, user.id, formattedText, mediaUrl, 0, messageId]

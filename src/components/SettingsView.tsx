@@ -190,10 +190,10 @@ export function SettingsView({ token }: { token: string }) {
               </p>
             </div>
             <div>
-              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Имя файла SQLite</label>
+              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Путь к базе данных SQLite</label>
               <input 
-                value={settings.db_name} 
-                onChange={(e) => handleChange('db_name', e.target.value)}
+                value={settings.db_path} 
+                onChange={(e) => handleChange('db_path', e.target.value)}
                 className="w-full bg-black/40 border-none rounded-2xl px-6 py-4 text-white font-mono focus:ring-2 focus:ring-white/20" 
               />
             </div>

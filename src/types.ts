@@ -14,16 +14,16 @@ export interface Message {
 
 export interface Ticket {
   id: string;
-  clientId: string;
-  clientName: string;
+  client_id: number;
+  client_name: string;
   subject: string;
   description: string;
-  status: Status;
-  priority: Priority;
-  createdAt: number;
-  updatedAt: number;
-  assignedTo?: string;
-  slaDeadline: number;
+  status: string;
+  priority: string;
+  created_at: string;
+  updated_at: string;
+  assigned_to?: number;
+  sla_deadline: string;
 }
 
 export interface TicketWithMessages extends Ticket {

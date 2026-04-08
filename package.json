@@ -1,5 +1,5 @@
 {
-  "name": "viking-desk",
+  "name": "support-desk",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
+    "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.14",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
@@ -35,7 +36,12 @@
     "nodemailer": "^8.0.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "react-quill-new": "^3.8.3",
     "recharts": "^3.8.1",
+    "rehype-raw": "^7.0.0",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "sqlite": "^5.1.1",

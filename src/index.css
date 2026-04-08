@@ -1,5 +1,68 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Quill Dark Mode Overrides */
+.ql-toolbar.ql-snow {
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  background: rgba(255, 255, 255, 0.02);
+}
+.ql-container.ql-snow {
+  border: none !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+}
+.ql-editor {
+  color: #fff;
+  min-height: 80px;
+}
+.ql-editor.ql-blank::before {
+  color: rgba(255, 255, 255, 0.3) !important;
+  font-style: normal !important;
+}
+.ql-snow .ql-stroke {
+  stroke: #9ca3af !important;
+}
+.ql-snow .ql-fill {
+  fill: #9ca3af !important;
+}
+.ql-snow .ql-picker {
+  color: #9ca3af !important;
+}
+.ql-snow .ql-picker-options {
+  background-color: #1C1D21 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Quill Content Formatting */
+.quill-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.quill-content ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.quill-content li {
+  margin-bottom: 0.25rem;
+}
+.quill-content p {
+  margin-bottom: 0.5rem;
+}
+.quill-content strong {
+  font-weight: 700;
+}
+.quill-content em {
+  font-style: italic;
+}
+.quill-content u {
+  text-decoration: underline;
+}
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -13,5 +76,39 @@
 }
 
 .markdown-body {
-  @apply text-sm leading-relaxed text-gray-300;
+  @apply text-sm leading-relaxed;
+}
+
+.markdown-body pre {
+  @apply bg-[#0D0E11] border border-white/10 rounded-xl p-4 my-4 overflow-x-auto shadow-2xl;
+}
+
+.markdown-body code {
+  @apply font-mono text-xs bg-white/10 px-1.5 py-0.5 rounded text-blue-300;
+}
+
+.markdown-body pre code {
+  @apply p-0 bg-transparent text-gray-200 block leading-relaxed;
+}
+
+.markdown-body blockquote {
+  @apply border-l-4 border-white/10 pl-4 italic text-gray-500 my-4;
+}
+
+.markdown-body a {
+  @apply text-blue-400 hover:underline;
+}
+
+/* Quill Code Formatting */
+.ql-editor pre.ql-syntax {
+  @apply bg-[#0D0E11] text-gray-200 p-4 rounded-xl font-mono text-sm my-2 border border-white/10;
+  background-color: #0D0E11 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #e5e7eb !important;
+}
+
+.ql-editor code {
+  @apply font-mono text-xs bg-white/10 px-1.5 py-0.5 rounded text-blue-300;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #93c5fd !important;
 }
