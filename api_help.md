@@ -11,6 +11,7 @@ SupportDesk предоставляет два типа API: **Внешнее API
 
 По умолчанию ключ: `your_api_key_here` (настраивается в `.env`).
 
+
 ### Заявки (Tickets)
 
 #### Получение списка всех заявок
@@ -112,6 +113,72 @@ SupportDesk предоставляет два типа API: **Внешнее API
 - `POST /api/admin/users` — Создание пользователя.
 - `DELETE /api/admin/users/:id` — Удаление пользователя.
 - `GET /api/admin/stats` — Общая статистика системы.
+
+## 3. Примеры использования (Examples)
+
+### Внешнее API (curl)
+
+**Создание новой заявки от имени клиента:**
+```bash
+curl -X POST http://localhost:3000/api/external/tickets \
+     -H "X-API-KEY: your_api_key_here" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "subject": "Проблема с доступом",
+       "description": "Не могу зайти в личный кабинет, выдает ошибку 403",
+       "clientUsername": "ivanov_client"
+     }'
+```
+
+**Добавление внутренней заметки для сотрудников:**
+```bash
+curl -X POST http://localhost:3000/api/external/tickets/TICK-12345/messages \
+     -H "X-API-KEY: your_api_key_here" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "text": "Проверил логи, у пользователя действительно заблокирован IP",
+       "senderUsername": "support_admin",
+       "isInternal": true
+     }'
+```
+
+### Внешнее API (Python)
+
+```python
+import requests
+
+API_URL = "http://localhost:3000/api/external"
+HEADERS = {"X-API-KEY": "your_api_key_here"}
+
+# 1. Получение списка заявок
+response = requests.get(f"{API_URL}/tickets", headers=HEADERS)
+tickets = response.json()
+print(f"Всего заявок: {len(tickets)}")
+
+# 2. Обновление статуса заявки
+ticket_id = "TICK-12345"
+update_data = {
+    "status": "resolved",
+    "priority": "low"
+}
+res = requests.patch(f"{API_URL}/tickets/{ticket_id}", headers=HEADERS, json=update_data)
+if res.status_code == 200:
+    print("Статус успешно обновлен")
+```
+
+### Внутреннее API (Авторизация и запрос)
+
+**1. Получение токена:**
+```bash
+TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"username": "admin", "password": "your_password"}' | jq -r '.token')
+```
+
+**2. Использование токена для получения своих заявок:**
+```bash
+curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/api/tickets
+```
 
 ---
 
