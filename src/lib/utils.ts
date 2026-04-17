@@ -17,25 +17,27 @@ export function formatDateTime(timestamp: number) {
 export function getStatusColor(status: string) {
   const s = status.toUpperCase();
   switch (s) {
-    case 'NEW': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
-    case 'IN_PROGRESS': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
-    case 'PENDING': return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
-    case 'RESOLVED': return 'bg-green-500/10 text-green-500 border-green-500/20';
-    case 'CRITICAL': return 'bg-red-500/10 text-red-500 border-red-500/20';
-    case 'CLOSED': return 'bg-gray-500/10 text-gray-500 border-gray-500/20';
-    default: return 'bg-gray-500/10 text-gray-500 border-gray-500/20';
+    case 'NEW': return 'bg-blue-50 text-blue-600 border-blue-100';
+    case 'IN_PROGRESS': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
+    case 'PENDING': return 'bg-amber-50 text-amber-600 border-amber-100';
+    case 'RESOLVED': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+    case 'CRITICAL': return 'bg-rose-50 text-rose-600 border-rose-100';
+    case 'CLOSED': return 'bg-slate-50 text-slate-600 border-slate-100';
+    case 'ARCHIVED': return 'bg-gray-100 text-gray-500 border-gray-200';
+    default: return 'bg-gray-50 text-gray-600 border-gray-100';
   }
 }
 
 export function getStatusLabel(status: string) {
   const s = status.toUpperCase();
   switch (s) {
-    case 'NEW': return '\u041d\u043e\u0432\u0430\u044f'; // Новая
-    case 'IN_PROGRESS': return '\u0412\u0020\u0440\u0430\u0431\u043e\u0442\u0435'; // В работе
-    case 'PENDING': return '\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435'; // Ожидание
-    case 'RESOLVED': return '\u0420\u0435\u0448\u0435\u043d\u043e'; // Решено
-    case 'CRITICAL': return '\u041a\u0440\u0438\u0442\u0438\u0447\u043d\u043e'; // Критично
-    case 'CLOSED': return '\u0417\u0430\u043a\u0440\u044b\u0442\u043e'; // Закрыто
+    case 'NEW': return 'Новая';
+    case 'IN_PROGRESS': return 'В работе';
+    case 'PENDING': return 'Ожидание';
+    case 'RESOLVED': return 'Решено';
+    case 'CRITICAL': return 'Критично';
+    case 'CLOSED': return 'Закрыто';
+    case 'ARCHIVED': return 'Архив';
     default: return status;
   }
 }
@@ -43,10 +45,10 @@ export function getStatusLabel(status: string) {
 export function getPriorityColor(priority: string) {
   const p = priority.toLowerCase();
   switch (p) {
-    case 'low': return 'text-gray-500';
+    case 'low': return 'text-slate-400';
     case 'medium': return 'text-blue-500';
     case 'high': return 'text-orange-500';
-    case 'critical': return 'text-red-600 font-bold';
-    default: return 'text-gray-500';
+    case 'critical': return 'text-rose-600 font-bold';
+    default: return 'text-slate-400';
   }
 }

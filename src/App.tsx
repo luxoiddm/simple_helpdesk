@@ -131,9 +131,23 @@ export default function App() {
         setTickets(prev => prev.map(t => t.id === updatedTicket.id ? updatedTicket : t));
       });
 
-      newSocket.on('ticket:deleted', (ticketId: string) => {
-        setTickets(prev => prev.filter(t => t.id !== ticketId));
-        if (selectedTicketIdRef.current === ticketId) {
+      newSocket.on('ticket:deleted', ({ id }: { id: string }) => {
+        setTickets(prev => prev.filter(t => t.id !== id));
+        if (selectedTicketIdRef.current === id) {
+          setSelectedTicketId(null);
+        }
+      });
+
+      newSocket.on('ticket:bulk_updated', ({ tickets: updatedTickets }: { tickets: Ticket[] }) => {
+        setTickets(prev => prev.map(t => {
+          const match = updatedTickets.find(ut => ut.id === t.id);
+          return match ? match : t;
+        }));
+      });
+
+      newSocket.on('ticket:bulk_deleted', ({ ticketIds }: { ticketIds: string[] }) => {
+        setTickets(prev => prev.filter(t => !ticketIds.includes(t.id)));
+        if (selectedTicketIdRef.current && ticketIds.includes(selectedTicketIdRef.current)) {
           setSelectedTicketId(null);
         }
       });
@@ -145,6 +159,16 @@ export default function App() {
           }
           return prev;
         });
+      });
+
+      newSocket.on('message:updated', (updatedMsg: any) => {
+        setMessages(prev => prev.map(m => m.id === updatedMsg.id ? updatedMsg : m));
+      });
+
+      newSocket.on('message:deleted', ({ id, ticket_id }: any) => {
+        if (ticket_id === selectedTicketIdRef.current) {
+          setMessages(prev => prev.filter(m => m.id !== id));
+        }
       });
 
       return () => { newSocket.close(); };
@@ -165,10 +189,17 @@ export default function App() {
   }, [selectedTicketId, socket, token]);
 
   const stats = useMemo(() => {
-    const total = tickets.filter(t => (t.status || '').toUpperCase() !== 'RESOLVED').length;
-    const open = tickets.filter(t => (t.status || '').toUpperCase() === 'IN_PROGRESS' || (t.status || '').toUpperCase() === 'NEW').length;
+    const total = tickets.filter(t => {
+      const status = (t.status || '').toUpperCase();
+      return status !== 'RESOLVED' && status !== 'ARCHIVED';
+    }).length;
+    const open = tickets.filter(t => {
+      const status = (t.status || '').toUpperCase();
+      return status === 'IN_PROGRESS' || status === 'NEW';
+    }).length;
     const resolved = tickets.filter(t => (t.status || '').toUpperCase() === 'RESOLVED').length;
     const critical = tickets.filter(t => (t.status || '').toUpperCase() === 'CRITICAL').length;
+    const archived = tickets.filter(t => (t.status || '').toUpperCase() === 'ARCHIVED').length;
     
     const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
     const last7Days = Array.from({ length: 7 }, (_, i) => {
@@ -199,60 +230,64 @@ export default function App() {
 
   if (isAuthLoading) {
     return (
-      <div className="h-screen bg-[#0A0A0B] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-white/10 border-t-white rounded-full animate-spin" />
+      <div className="h-screen bg-[#f0f2f5] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-black/5 border-t-blue-500 rounded-full animate-spin" />
       </div>
     );
   }
 
   if (!token || !user) {
     return (
-      <div className="h-screen bg-[#0A0A0B] flex items-center justify-center p-6 font-sans">
+      <div className="h-screen bg-[#f0f2f5] flex items-center justify-center p-6 font-sans">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md bg-[#151619] rounded-[40px] p-12 border border-white/5 shadow-2xl"
+          className="w-full max-w-md bg-white rounded-[32px] p-10 border border-black/5 shadow-xl"
         >
-          <div className="flex items-center gap-4 mb-12">
-            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-black font-black text-2xl">{siteName[0]}</div>
-            <h1 className="text-3xl font-black text-white tracking-tighter italic">{siteName}</h1>
+          <div className="flex items-center gap-4 mb-10">
+            <div className="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-blue-500/20">{siteName[0]}</div>
+            <h1 className="text-2xl font-black text-gray-900 tracking-tight">{siteName}</h1>
           </div>
 
-          <h2 className="text-xl font-bold text-white mb-2">Авторизация</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Авторизация <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full uppercase ml-1">beta v0.1.0</span></h2>
           <p className="text-gray-500 text-sm mb-8">Войдите в систему для работы с заявками</p>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Логин</label>
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-4 mb-2 block">Логин</label>
               <div className="relative">
-                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input 
                   name="username"
                   required
                   type="text" 
-                  className="w-full bg-[#1C1D21] border-none rounded-2xl pl-14 pr-6 py-4 text-white focus:ring-2 focus:ring-white/20 transition-all"
+                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl pl-14 pr-6 py-4 text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all outline-none"
                   placeholder="admin"
                 />
               </div>
             </div>
             <div>
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Пароль</label>
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-4 mb-2 block">Пароль</label>
               <div className="relative">
-                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-600" size={18} />
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input 
                   name="password"
                   required
                   type="password" 
-                  className="w-full bg-[#1C1D21] border-none rounded-2xl pl-14 pr-6 py-4 text-white focus:ring-2 focus:ring-white/20 transition-all"
+                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl pl-14 pr-6 py-4 text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all outline-none"
                   placeholder="••••••••"
                 />
               </div>
             </div>
             {loginError && <p className="text-red-500 text-xs font-bold ml-4">{loginError}</p>}
-            <button className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] transition-transform active:scale-95 shadow-xl">
+            <button className="w-full py-4 bg-blue-500 text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-blue-600 transition-all active:scale-[0.98] shadow-lg shadow-blue-500/20">
               Войти в систему
             </button>
           </form>
+
+          <div className="mt-8 text-center">
+            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-tighter">&copy; {new Date().getFullYear()} LUXOID</p>
+          </div>
         </motion.div>
       </div>
     );
@@ -278,11 +313,27 @@ export default function App() {
     });
   };
 
+  const onUpdateAssignment = (id: string, assigned_to: number | null) => {
+    fetch(`/api/tickets/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ assigned_to })
+    });
+  };
+
+  const refreshTickets = () => {
+    fetch('/api/tickets', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => setTickets(data));
+  };
+
   return (
-    <div className="flex h-screen bg-[#0A0A0B] text-white font-sans overflow-hidden">
+    <div className="flex h-screen bg-[#f0f2f5] text-gray-900 font-sans overflow-hidden">
       <Sidebar user={user} view={view} setView={setView} handleLogout={handleLogout} siteName={siteName} />
 
-      <main className="flex-1 flex flex-col min-w-0 relative bg-[#0A0A0B]">
+      <main className="flex-1 flex flex-col min-w-0 relative bg-[#f0f2f5]">
         {view === 'dashboard' && (
           <SupportDashboard 
             tickets={tickets} 
@@ -295,9 +346,11 @@ export default function App() {
             onSendMessage={onSendMessage}
             onUpdateStatus={onUpdateStatus}
             onUpdatePriority={onUpdatePriority}
+            onUpdateAssignment={onUpdateAssignment}
             setIsNewTicketModalOpen={setIsNewTicketModalOpen}
             isChatExpanded={isChatExpanded}
             setIsChatExpanded={setIsChatExpanded}
+            refreshTickets={refreshTickets}
           />
         )}
         {view === 'admin' && <AdminPanel token={token} />}
@@ -313,9 +366,11 @@ export default function App() {
             onSendMessage={onSendMessage}
             onUpdateStatus={onUpdateStatus}
             onUpdatePriority={onUpdatePriority}
+            onUpdateAssignment={onUpdateAssignment}
             setIsNewTicketModalOpen={setIsNewTicketModalOpen}
             isChatExpanded={isChatExpanded}
             setIsChatExpanded={setIsChatExpanded}
+            refreshTickets={refreshTickets}
           />
         )}
 

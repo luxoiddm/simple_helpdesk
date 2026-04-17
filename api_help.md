@@ -2,58 +2,6 @@
 
 SupportDesk предоставляет два типа API: **Внешнее API** (для интеграции с другими системами через API-ключ) и **Внутреннее API** (используется веб-интерфейсом через JWT-токен).
 
-## Примеры использования
-### Пример через cURL (Linux/macOS/Windows Terminal):
-```
-curl -X POST https://desk.fkviking.com/api/external/tickets \
-     -H "x-api-key: viking_api_key_for_external_services" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "subject": "Тестовая заявка через API",
-       "description": "Это описание заявки, созданной удаленно",
-       "clientUsername": "admin"
-     }'
-```
-### Пример на JavaScript (fetch):
-```
-const createTicket = async () => {
-  const response = await fetch('https://desk.fkviking.com/api/external/tickets', {
-    method: 'POST',
-    headers: {
-      'x-api-key': 'viking_api_key_for_external_services',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      subject: 'Заголовок заявки',
-      description: 'Текст обращения',
-      clientUsername: 'admin' // Логин пользователя в системе
-    })
-  });
-
-  const data = await response.json();
-  console.log(data);
-};
-
-createTicket();
-```
-### Пример на Python:
-```
-import requests
-
-url = "https://desk.fkviking.com/api/external/tickets"
-headers = {
-    "x-api-key": "viking_api_key_for_external_services",
-    "Content-Type": "application/json"
-}
-data = {
-    "subject": "Заявка из Python",
-    "description": "Описание проблемы",
-    "clientUsername": "admin"
-}
-
-response = requests.post(url, json=data, headers=headers)
-print(response.json())
-```
 ---
 
 ## 1. Внешнее API (X-API-KEY)
@@ -164,6 +112,74 @@ print(response.json())
 - `POST /api/admin/users` — Создание пользователя.
 - `DELETE /api/admin/users/:id` — Удаление пользователя.
 - `GET /api/admin/stats` — Общая статистика системы.
+
+---
+
+## 3. Примеры использования (Examples)
+
+### Внешнее API (curl)
+
+**Создание новой заявки от имени клиента:**
+```bash
+curl -X POST http://localhost:3000/api/external/tickets \
+     -H "X-API-KEY: your_api_key_here" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "subject": "Проблема с доступом",
+       "description": "Не могу зайти в личный кабинет, выдает ошибку 403",
+       "clientUsername": "ivanov_client"
+     }'
+```
+
+**Добавление внутренней заметки для сотрудников:**
+```bash
+curl -X POST http://localhost:3000/api/external/tickets/TICK-12345/messages \
+     -H "X-API-KEY: your_api_key_here" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "text": "Проверил логи, у пользователя действительно заблокирован IP",
+       "senderUsername": "support_admin",
+       "isInternal": true
+     }'
+```
+
+### Внешнее API (Python)
+
+```python
+import requests
+
+API_URL = "http://localhost:3000/api/external"
+HEADERS = {"X-API-KEY": "your_api_key_here"}
+
+# 1. Получение списка заявок
+response = requests.get(f"{API_URL}/tickets", headers=HEADERS)
+tickets = response.json()
+print(f"Всего заявок: {len(tickets)}")
+
+# 2. Обновление статуса заявки
+ticket_id = "TICK-12345"
+update_data = {
+    "status": "resolved",
+    "priority": "low"
+}
+res = requests.patch(f"{API_URL}/tickets/{ticket_id}", headers=HEADERS, json=update_data)
+if res.status_code == 200:
+    print("Статус успешно обновлен")
+```
+
+### Внутреннее API (Авторизация и запрос)
+
+**1. Получение токена:**
+```bash
+TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"username": "admin", "password": "your_password"}' | jq -r '.token')
+```
+
+**2. Использование токена для получения своих заявок:**
+```bash
+curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/api/tickets
+```
 
 ---
 

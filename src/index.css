@@ -2,11 +2,11 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* Quill Dark Mode Overrides */
+/* Quill Light Mode Overrides */
 .ql-toolbar.ql-snow {
   border: none !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  background: rgba(0, 0, 0, 0.02);
 }
 .ql-container.ql-snow {
   border: none !important;
@@ -14,25 +14,25 @@
   font-size: 14px !important;
 }
 .ql-editor {
-  color: #fff;
+  color: #1a1a1a;
   min-height: 80px;
 }
 .ql-editor.ql-blank::before {
-  color: rgba(255, 255, 255, 0.3) !important;
+  color: rgba(0, 0, 0, 0.3) !important;
   font-style: normal !important;
 }
 .ql-snow .ql-stroke {
-  stroke: #9ca3af !important;
+  stroke: #4b5563 !important;
 }
 .ql-snow .ql-fill {
-  fill: #9ca3af !important;
+  fill: #4b5563 !important;
 }
 .ql-snow .ql-picker {
-  color: #9ca3af !important;
+  color: #4b5563 !important;
 }
 .ql-snow .ql-picker-options {
-  background-color: #1C1D21 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Quill Content Formatting */
@@ -71,7 +71,7 @@
 
 @layer base {
   body {
-    @apply bg-[#0A0A0B] text-white antialiased;
+    @apply bg-[#f0f2f5] text-[#1a1a1a] antialiased;
   }
 }
 
@@ -80,35 +80,35 @@
 }
 
 .markdown-body pre {
-  @apply bg-[#0D0E11] border border-white/10 rounded-xl p-4 my-4 overflow-x-auto shadow-2xl;
+  @apply bg-[#f8f9fa] border border-black/5 rounded-xl p-4 my-4 overflow-x-auto shadow-sm;
 }
 
 .markdown-body code {
-  @apply font-mono text-xs bg-white/10 px-1.5 py-0.5 rounded text-blue-300;
+  @apply font-mono text-xs bg-black/5 px-1.5 py-0.5 rounded text-blue-600;
 }
 
 .markdown-body pre code {
-  @apply p-0 bg-transparent text-gray-200 block leading-relaxed;
+  @apply p-0 bg-transparent text-gray-800 block leading-relaxed;
 }
 
 .markdown-body blockquote {
-  @apply border-l-4 border-white/10 pl-4 italic text-gray-500 my-4;
+  @apply border-l-4 border-black/10 pl-4 italic text-gray-500 my-4;
 }
 
 .markdown-body a {
-  @apply text-blue-400 hover:underline;
+  @apply text-blue-600 hover:underline;
 }
 
 /* Quill Code Formatting */
 .ql-editor pre.ql-syntax {
-  @apply bg-[#0D0E11] text-gray-200 p-4 rounded-xl font-mono text-sm my-2 border border-white/10;
-  background-color: #0D0E11 !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  color: #e5e7eb !important;
+  @apply bg-[#f8f9fa] text-gray-800 p-4 rounded-xl font-mono text-sm my-2 border border-black/5;
+  background-color: #f8f9fa !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
+  color: #1f2937 !important;
 }
 
 .ql-editor code {
-  @apply font-mono text-xs bg-white/10 px-1.5 py-0.5 rounded text-blue-300;
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  color: #93c5fd !important;
+  @apply font-mono text-xs bg-black/5 px-1.5 py-0.5 rounded text-blue-600;
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  color: #2563eb !important;
 }
