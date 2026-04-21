@@ -108,107 +108,111 @@ export function SupportDashboard({ tickets, stats, setSelectedTicketId, selected
     });
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full flex-col lg:flex-row overflow-hidden">
       <div className={cn(
-        "flex-1 flex flex-col min-w-0 transition-all duration-500", 
+        "flex-1 flex flex-col min-w-0 transition-all duration-500 overflow-hidden", 
         (selectedTicketId && (isChatExpanded || window.innerWidth < 1024)) ? "hidden lg:hidden" : "flex",
         selectedTicketId && !isChatExpanded && "lg:flex"
       )}>
-        <header className="h-20 px-8 flex items-center justify-between border-b border-gray-100 bg-white/50 backdrop-blur-md sticky top-0 z-10">
-          <div>
-            <h2 className="text-2xl font-black tracking-tight text-gray-900">Панель Управления</h2>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Центр обработки обращений</p>
-          </div>
-          <div className="flex items-center gap-4">
+        <header className="p-4 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 border-b border-gray-100 bg-white/50 backdrop-blur-md sticky top-0 z-10">
+          <div className="flex items-center justify-between md:block">
+            <div>
+              <h2 className="text-xl md:text-2xl font-black tracking-tight text-gray-900">Панель Управления</h2>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Центр обработки обращений</p>
+            </div>
             {user.role === 'admin' && (
               <button 
                 onClick={() => setIsNewTicketModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20"
+                className="md:hidden w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all shrink-0"
+              >
+                <Plus size={20} />
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            {user.role === 'admin' && (
+              <button 
+                onClick={() => setIsNewTicketModalOpen(true)}
+                className="hidden md:flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20"
               >
                 <Plus size={16} />
                 Создать заявку
               </button>
             )}
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <div className="relative flex-1 md:flex-initial">
+              <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
               <input 
                 type="text" 
-                placeholder="Поиск по заявкам..." 
+                placeholder="Поиск..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-11 pr-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm w-64 focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                className="w-full md:w-64 pl-9 md:pl-11 pr-4 py-2 md:py-2.5 bg-white border border-gray-100 rounded-xl text-xs md:text-sm focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
               />
             </div>
           </div>
         </header>
 
-        <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 shrink-0">
-          <StatCard 
-            title="Всего заявок" 
-            value={derivedStats.total} 
-            icon={<TicketIcon size={20}/>} 
-            color={filter === 'all' ? "bg-gray-900 text-white" : "bg-white text-gray-400"} 
-            onClick={() => setFilter('all')}
-            active={filter === 'all'}
-          />
-          <StatCard 
-            title="Новые" 
-            value={derivedStats.isNew} 
-            icon={<Plus size={20}/>} 
-            color={filter === 'NEW' ? "bg-blue-500 text-white" : "bg-white text-gray-400"} 
-            onClick={() => setFilter('NEW')}
-            active={filter === 'NEW'}
-          />
-          <StatCard 
-            title="В работе" 
-            value={derivedStats.open} 
-            icon={<Clock size={20}/>} 
-            color={filter === 'IN_PROGRESS' ? "bg-indigo-500 text-white" : "bg-white text-gray-400"} 
-            onClick={() => setFilter('IN_PROGRESS')}
-            active={filter === 'IN_PROGRESS'}
-          />
-          <StatCard 
-            title="Решено" 
-            value={derivedStats.resolved} 
-            icon={<CheckCircle2 size={20}/>} 
-            color={filter === 'RESOLVED' ? "bg-emerald-500 text-white" : "bg-white text-gray-400"} 
-            onClick={() => setFilter('RESOLVED')}
-            active={filter === 'RESOLVED'}
-          />
-          <StatCard 
-            title="Критично" 
-            value={derivedStats.critical} 
-            icon={<AlertCircle size={20}/>} 
-            color={filter === 'CRITICAL' ? "bg-rose-500 text-white" : "bg-white text-gray-400"} 
-            onClick={() => setFilter('CRITICAL')}
-            active={filter === 'CRITICAL'}
-          />
-          <StatCard 
-            title="Архив" 
-            value={derivedStats.archived} 
-            icon={<X size={20}/>} 
-            color={filter === 'ARCHIVED' ? "bg-slate-500 text-white" : "bg-white text-gray-400"} 
-            onClick={() => setFilter('ARCHIVED')}
-            active={filter === 'ARCHIVED'}
-          />
+        {/* Ultra-compact Filter Bar */}
+        <div className="px-4 md:px-8 pt-2 md:pt-4 pb-2 shrink-0 overflow-x-auto no-scrollbar">
+          <div className="inline-flex items-center gap-1 p-0.5 md:p-1 bg-white/60 backdrop-blur-xl rounded-xl md:rounded-2xl border border-white/80 shadow-sm min-w-max">
+            {[
+              { id: 'all', title: 'Все', count: derivedStats.total, icon: <TicketIcon size={14}/>, color: 'bg-gray-900' },
+              { id: 'NEW', title: 'Новые', count: derivedStats.isNew, icon: <Plus size={14}/>, color: 'bg-blue-500' },
+              { id: 'IN_PROGRESS', title: 'В работе', count: derivedStats.open, icon: <Clock size={14}/>, color: 'bg-indigo-500' },
+              { id: 'RESOLVED', title: 'Решено', count: derivedStats.resolved, icon: <CheckCircle2 size={14}/>, color: 'bg-emerald-500' },
+              { id: 'CRITICAL', title: 'Критично', count: derivedStats.critical, icon: <AlertCircle size={14}/>, color: 'bg-rose-500' },
+              { id: 'ARCHIVED', title: 'Архив', count: derivedStats.archived, icon: <X size={14}/>, color: 'bg-slate-500' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setFilter(item.id)}
+                className={cn(
+                  "relative flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-xl transition-all duration-300 group shrink-0",
+                  filter === item.id ? "text-white" : "text-gray-500 hover:text-gray-900 hover:bg-white/50"
+                )}
+              >
+                {/* Active Highlight */}
+                {filter === item.id && (
+                  <motion.div
+                    layoutId="compactFilter"
+                    className={cn("absolute inset-0 z-0", item.color)}
+                    transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+                  />
+                )}
+
+                {/* Content */}
+                <div className="relative z-10 flex items-center gap-2 pointer-events-none">
+                  {item.icon}
+                  <span className="text-[10px] font-bold uppercase tracking-wider hidden sm:inline">{item.title}</span>
+                  <span className={cn(
+                    "min-w-[1.25rem] h-5 px-1 rounded-md flex items-center justify-center text-[10px] font-black tabular-nums transition-colors",
+                    filter === item.id ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500 group-hover:bg-gray-200"
+                  )}>
+                    {item.count}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="flex-1 px-8 pb-8 overflow-hidden">
+        <div className="flex-1 px-4 md:px-8 pb-4 md:pb-8 overflow-hidden">
           <div className="h-full flex flex-col bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <h3 className="text-lg font-bold text-gray-900">
+            <div className="p-4 md:p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+              <h3 className="text-base md:text-lg font-bold text-gray-900 truncate mr-4">
                 {filter === 'all' ? 'Активные Заявки' : 
                  filter === 'NEW' ? 'Новые заявки' :
                  filter === 'IN_PROGRESS' ? 'Заявки в работе' :
                  filter === 'RESOLVED' ? 'Решенные заявки' : 
                  filter === 'ARCHIVED' ? 'Архив заявок' : 'Критические заявки'}
               </h3>
-              <div className="flex gap-2">
-                <span className="px-3 py-1 bg-white border border-gray-100 rounded-lg text-[9px] font-bold uppercase tracking-widest text-gray-400">Сортировка: Приоритет</span>
+              <div className="flex gap-2 shrink-0">
+                <span className="hidden sm:inline px-3 py-1 bg-white border border-gray-100 rounded-lg text-[9px] font-bold uppercase tracking-widest text-gray-400">Сортировка: Приоритет</span>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto">
-              <table className="w-full text-left border-collapse">
+            <div className="flex-1 overflow-auto">
+              {/* Desktop Table View */}
+              <table className="hidden md:table w-full text-left border-collapse">
                 <thead className="sticky top-0 bg-white z-10 shadow-sm shadow-black/5">
                   <tr className="text-[9px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
                     <th className="px-6 py-4 w-10">
@@ -285,6 +289,51 @@ export function SupportDashboard({ tickets, stats, setSelectedTicketId, selected
                   })}
                 </tbody>
               </table>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-50">
+                {filteredTickets.map((ticket: any) => (
+                  <div 
+                    key={ticket.id}
+                    onClick={() => setSelectedTicketId(ticket.id)}
+                    className={cn(
+                      "p-4 flex items-start gap-4 transition-all active:bg-gray-50",
+                      selectedTicketId === ticket.id ? "bg-blue-50/50" : ""
+                    )}
+                  >
+                    <div 
+                      onClick={(e) => toggleSelect(ticket.id, e)}
+                      className={cn("mt-1 shrink-0 transition-colors", selectedIds.includes(ticket.id) ? "text-blue-500" : "text-gray-300")}
+                    >
+                      {selectedIds.includes(ticket.id) ? <CheckSquare size={16} /> : <Square size={16} />}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-mono font-bold text-gray-400">{ticket.id}</span>
+                        <div className="flex items-center gap-2">
+                          <span className={cn("px-1.5 py-0.5 rounded text-[8px] font-bold border uppercase tracking-wider", getStatusColor(ticket.status))}>
+                            {getStatusLabel(ticket.status)}
+                          </span>
+                          <span className={cn("text-[8px] font-bold uppercase tracking-tight", getPriorityColor(ticket.priority))}>
+                            {ticket.priority}
+                          </span>
+                        </div>
+                      </div>
+                      <h4 className="text-xs font-bold text-gray-900 truncate mb-1">{ticket.subject}</h4>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-[8px] font-bold text-gray-500">
+                            {ticket.client_name?.[0] || '?'}
+                          </div>
+                          <span className="text-[10px] text-gray-400 truncate max-w-[100px]">{ticket.client_name}</span>
+                        </div>
+                        <span className="text-[9px] text-gray-300 font-medium">{formatDateTime(new Date(ticket.updated_at).getTime())}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -297,9 +346,19 @@ export function SupportDashboard({ tickets, stats, setSelectedTicketId, selected
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.7}
+            onDragEnd={(_, info) => {
+              if (info.offset.x > 100 || info.velocity.x > 500) {
+                setSelectedTicketId(null);
+                setIsChatExpanded(false);
+              }
+            }}
             className={cn(
               "bg-white border-l border-gray-100 flex flex-col shadow-2xl z-20 transition-all duration-500",
-              isChatExpanded ? "w-full" : "w-full lg:w-[450px] xl:w-[550px]"
+              isChatExpanded ? "w-full" : "w-full lg:w-[450px] xl:w-[550px]",
+              "fixed inset-0 lg:relative lg:inset-auto"
             )}
           >
             <TicketDetail 
@@ -328,33 +387,41 @@ export function SupportDashboard({ tickets, stats, setSelectedTicketId, selected
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-6 z-[60] border border-white/10"
+            className="fixed bottom-6 md:bottom-10 left-4 right-4 md:left-1/2 md:-translate-x-1/2 bg-gray-900 text-white px-4 md:px-6 py-4 rounded-2xl shadow-2xl flex flex-col md:flex-row items-center gap-4 md:gap-6 z-[60] border border-white/10"
           >
-            <div className="flex items-center gap-3 pr-6 border-r border-white/10">
-              <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center font-bold">{selectedIds.length}</div>
-              <span className="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">Выбрано заявок</span>
+            <div className="flex items-center justify-between w-full md:w-auto md:pr-6 md:border-r md:border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center font-bold">{selectedIds.length}</div>
+                <span className="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">Выбрано заявок</span>
+              </div>
+              <button 
+                onClick={() => setSelectedIds([])}
+                className="md:hidden p-2 hover:bg-white/10 rounded-lg transition-all"
+              >
+                <X size={18} />
+              </button>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-2 w-full md:w-auto">
               <select 
                 onChange={(e) => handleBulkAction('update', e.target.value)}
-                className="bg-transparent text-[10px] font-bold uppercase tracking-widest outline-none border border-white/10 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5"
+                className="flex-1 md:flex-none bg-gray-800 text-[10px] font-bold uppercase tracking-widest outline-none border border-white/10 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5"
               >
-                <option className="bg-gray-900" value="">Сменить статус...</option>
-                <option className="bg-gray-900" value="NEW">Новая</option>
-                <option className="bg-gray-900" value="IN_PROGRESS">В работе</option>
-                <option className="bg-gray-900" value="RESOLVED">Решено</option>
-                <option className="bg-gray-900" value="ARCHIVED">В архив</option>
+                <option value="">Статус...</option>
+                <option value="NEW">Новая</option>
+                <option value="IN_PROGRESS">В работе</option>
+                <option value="RESOLVED">Решено</option>
+                <option value="ARCHIVED">В архив</option>
               </select>
 
-              <div className="relative">
+              <div className="flex-1 md:flex-none">
                 <select 
                   onChange={(e) => handleBulkAction('update', Number(e.target.value))}
-                  className="bg-transparent text-[10px] font-bold uppercase tracking-widest outline-none border border-white/10 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5"
+                  className="w-full bg-gray-800 text-[10px] font-bold uppercase tracking-widest outline-none border border-white/10 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5"
                 >
-                  <option className="bg-gray-900" value="">Назначить...</option>
+                  <option value="">Назначить...</option>
                   {supportUsers.map((su: any) => (
-                    <option key={su.id} className="bg-gray-900" value={su.id}>{su.full_name}</option>
+                    <option key={su.id} value={su.id}>{su.full_name}</option>
                   ))}
                 </select>
               </div>
@@ -362,7 +429,7 @@ export function SupportDashboard({ tickets, stats, setSelectedTicketId, selected
               {user.role === 'admin' && (
                 <button 
                   onClick={() => handleBulkAction('delete')}
-                  className="p-2 hover:bg-rose-500/20 text-rose-400 rounded-lg transition-all"
+                  className="p-2.5 bg-rose-500/20 text-rose-400 rounded-lg transition-all"
                   title="Удалить выбранные"
                 >
                   <Trash size={18} />
@@ -372,7 +439,7 @@ export function SupportDashboard({ tickets, stats, setSelectedTicketId, selected
 
             <button 
               onClick={() => setSelectedIds([])}
-              className="ml-6 p-2 hover:bg-white/10 rounded-lg transition-all"
+              className="hidden md:block ml-0 md:ml-6 p-2 hover:bg-white/10 rounded-lg transition-all"
               title="Отменить выделение"
             >
               <X size={18} />

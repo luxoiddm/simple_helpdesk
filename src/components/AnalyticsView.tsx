@@ -14,16 +14,16 @@ import {
 
 export function AnalyticsView({ stats }: any) {
   return (
-    <div className="p-8 flex flex-col h-full overflow-y-auto">
-      <header className="mb-10">
-        <h2 className="text-4xl font-black tracking-tight">Аналитика</h2>
+    <div className="p-4 md:p-8 flex flex-col h-full overflow-y-auto">
+      <header className="mb-6 md:mb-10">
+        <h2 className="text-3xl md:text-4xl font-black tracking-tight">Аналитика</h2>
         <p className="text-gray-500 mt-1 font-bold uppercase tracking-widest text-[10px]">Статистика и показатели эффективности</p>
       </header>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
-        <div className="xl:col-span-2 bg-[#151619] p-8 rounded-2xl border border-white/5">
-          <h3 className="text-lg font-bold mb-8">Активность за последние 7 дней</h3>
-          <div className="h-80">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-8 mb-8">
+        <div className="xl:col-span-2 bg-[#151619] p-4 md:p-8 rounded-2xl border border-white/5">
+          <h3 className="text-base md:text-lg font-bold mb-6 md:mb-8 text-white">Активность за последние 7 дней</h3>
+          <div className="h-64 md:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />

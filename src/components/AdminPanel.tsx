@@ -93,33 +93,33 @@ export function AdminPanel({ token }: { token: string }) {
   };
 
   return (
-    <div className="flex h-full overflow-hidden bg-[#f0f2f5]">
+    <div className="flex flex-col lg:flex-row h-full overflow-hidden bg-[#f0f2f5]">
       {/* Admin Sidebar Tabs */}
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col p-8">
-        <div className="mb-12">
-          <h2 className="text-2xl font-black tracking-tight text-gray-900 italic">Админ-центр</h2>
+      <div className="w-full lg:w-80 bg-white border-r border-gray-200 flex flex-col p-4 md:p-8 shrink-0">
+        <div className="mb-8 md:mb-12">
+          <h2 className="text-xl md:text-2xl font-black tracking-tight text-gray-900 italic">Админ-центр</h2>
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Управление системой</p>
         </div>
 
-        <nav className="space-y-2">
+        <nav className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible no-scrollbar pb-2 lg:pb-0">
           {[
-            { id: 'users', label: 'Пользователи', icon: Users },
+            { id: 'users', label: 'Люди', icon: Users },
             { id: 'backups', label: 'Бэкапы', icon: Archive },
-            { id: 'integrations', label: 'Интеграции', icon: Zap },
+            { id: 'integrations', label: 'API', icon: Zap },
             { id: 'settings', label: 'Настройки', icon: SettingsIcon },
           ].map((tab: any) => (
             <button 
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
+                "flex-1 lg:w-full flex items-center justify-center lg:justify-start gap-4 px-4 lg:px-6 py-3 lg:py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                 activeTab === tab.id 
                   ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20" 
                   : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
               )}
             >
               <tab.icon size={18} />
-              {tab.label}
+              <span className="hidden sm:inline lg:inline">{tab.label}</span>
             </button>
           ))}
         </nav>
@@ -128,24 +128,24 @@ export function AdminPanel({ token }: { token: string }) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {activeTab === 'users' && (
-          <div className="p-10 flex flex-col h-full overflow-hidden">
-            <header className="flex items-center justify-between mb-12">
+          <div className="p-4 md:p-10 flex flex-col h-full overflow-hidden">
+            <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 md:mb-12">
               <div>
-                <h2 className="text-4xl font-black tracking-tighter text-gray-900 italic">Пользователи</h2>
+                <h2 className="text-3xl md:text-4xl font-black tracking-tighter text-gray-900 italic">Пользователи</h2>
                 <p className="text-gray-500 mt-2 font-bold uppercase tracking-widest text-xs">Управление доступом и ролями</p>
               </div>
               <button 
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-3 px-8 py-4 bg-blue-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:bg-blue-600 transition-all"
+                className="flex items-center justify-center gap-3 px-8 py-4 bg-blue-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:bg-blue-600 transition-all w-full sm:w-auto"
               >
                 <Plus size={20} />
                 Добавить
               </button>
             </header>
 
-            <div className="flex-1 bg-white rounded-[40px] border border-gray-200 overflow-hidden flex flex-col shadow-sm">
-              <div className="overflow-y-auto h-full">
-                <table className="w-full text-left">
+            <div className="flex-1 bg-white rounded-3xl md:rounded-[40px] border border-gray-200 overflow-hidden flex flex-col shadow-sm">
+              <div className="overflow-auto h-full">
+                <table className="w-full text-left min-w-[800px]">
                   <thead className="sticky top-0 bg-white z-10">
                     <tr className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-100">
                       <th className="px-10 py-8">Имя</th>

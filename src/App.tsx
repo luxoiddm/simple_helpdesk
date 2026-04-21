@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { 
   User, 
   Lock,
+  Menu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Ticket, Role } from './types';
@@ -31,6 +32,7 @@ export default function App() {
   const [view, setView] = useState<'dashboard' | 'tickets' | 'admin' | 'analytics'>('dashboard');
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const selectedTicketIdRef = useRef<string | null>(null);
 
@@ -330,10 +332,32 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-[#f0f2f5] text-gray-900 font-sans overflow-hidden">
-      <Sidebar user={user} view={view} setView={setView} handleLogout={handleLogout} siteName={siteName} />
+    <div className="flex flex-col lg:flex-row h-screen bg-[#f0f2f5] text-gray-900 font-sans overflow-hidden">
+      {/* Mobile Header */}
+      <header className="lg:hidden h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 shrink-0 z-50">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-blue-500 rounded-xl flex items-center justify-center text-white font-black text-sm">{siteName[0]}</div>
+          <h1 className="font-black text-lg tracking-tight">{siteName}</h1>
+        </div>
+        <button 
+          onClick={() => setIsSidebarOpen(true)}
+          className="p-2 -mr-2 text-gray-500 hover:text-gray-900"
+        >
+          <Menu size={24} />
+        </button>
+      </header>
 
-      <main className="flex-1 flex flex-col min-w-0 relative bg-[#f0f2f5]">
+      <Sidebar 
+        user={user} 
+        view={view} 
+        setView={setView} 
+        handleLogout={handleLogout} 
+        siteName={siteName} 
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
+
+      <main className="flex-1 flex flex-col min-w-0 relative bg-[#f0f2f5] overflow-hidden">
         {view === 'dashboard' && (
           <SupportDashboard 
             tickets={tickets} 
